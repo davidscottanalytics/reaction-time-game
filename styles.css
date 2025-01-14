@@ -1,0 +1,112 @@
+/* General Page Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+}
+
+h1 {
+    color: #FF6347;
+    font-size: 2.5em;
+    margin-top: 30px;
+}
+
+#introText {
+    font-size: 1.2em;
+    color: #333;
+    margin-top: 10px;
+}
+
+#userForm {
+    margin-top: 30px;
+    font-size: 1.1em;
+}
+
+/* Lightning Bolt Styling */
+.lightning-bolt {
+    font-size: 5em;
+    color: #FFD700;
+    animation: boltFlash 1s infinite alternate;
+}
+
+/* Input Form Styles */
+input, select, button {
+    font-size: 1em;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    border: 2px solid #FF6347;
+    background-color: #fff;
+}
+
+button {
+    background-color: #FF6347;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #FF4500;
+}
+
+/* Fun Animation for the Lightning Bolt */
+@keyframes boltFlash {
+    0% {
+        transform: rotate(0deg);
+        color: #FFD700;
+    }
+    50% {
+        transform: rotate(10deg);
+        color: #FF6347;
+    }
+    100% {
+        transform: rotate(-10deg);
+        color: #FFD700;
+    }
+}
+
+/* Game Area Styles */
+#gameArea {
+    display: none;
+    background-color: white;
+    padding: 20px;
+    margin-top: 50px;
+    border-radius: 10px;
+    border: 2px solid #FF6347;
+}
+
+#resultsArea {
+    display: none;
+    padding: 20px;
+    margin-top: 50px;
+}
+
+#chart {
+    margin-top: 20px;
+    width: 80%;
+    height: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Styling for Buttons */
+button {
+    font-size: 1.1em;
+    padding: 10px;
+    background-color: #FF6347;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #FF4500;
+}
+
+button:active {
+    transform: scale(0.98);
+}
