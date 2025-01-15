@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reaction Time Game</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: white;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        #game-area {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        #rules {
+            margin: 20px;
+            font-size: 16px;
+            text-align: left;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="setup">
+        <h1>Reaction Time Game</h1>
+        <div id="rules">
+            <p>Welcome to the Reaction Time Game! Here are the rules:</p>
+            <ul>
+                <li>Enter your age and select your gender to begin.</li>
+                <li>When you start the game, the screen will tell you to click when it changes color.</li>
+                <li>The screen will change to a random color at random intervals.</li>
+                <li>You will need to click as quickly as possible once the color changes.</li>
+                <li>React to five color changes and receive your average reaction time.</li>
+                <li>Clicking before the color changes will add a penalty of 1 second to your reaction time.</li>
+            </ul>
+        </div>
+        <label>
+            Age: <input type="number" id="age" placeholder="Enter your age">
+        </label>
+        <br>
+        <label>
+            Gender: <select id="gender">
+                <option value="">Select</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </label>
+        <br>
+        <button id="start-btn">Start Game</button>
+    </div>
+
+    <div id="game-area" class="hidden"></div>
+
+    <script>
+        const setup = document.getElementById('setup');
+        const gameArea = document.getElementById('game-area');
+        const startBtn = document.getElementById('start-btn');
+        const ageInput = document.getElementById('age');
+        const genderInput = document.getElementById('gender');
+
+        let clickTimes = [];
+        let colorChanges = 0;
+        let startTime;
+        let gameInProgress = false;
+        const colors = ["red", "blue", "yellow", "purple", "green", "orange"];
+
+        startBtn.addEventListener('click', () => {
+            const age = ageInput.value;
+            const gender = genderInput.value;
+
+            if (!age || !gender) {
+                alert("Please enter your age and select your gender.");
+                return;
+            }
+
+            setup.classList.add('hidden');
+            gameArea.classList.remove('hidden');
+            gameArea.textContent = "Click anywhere when the screen changes color";
+            startGame();
+        });
+
+        function startGame() {
+            clickTimes = [];
+            colorChanges = 0;
+            setTimeout(changeColor, randomInterval());
+        }
+
+        function randomInterval() {
+            return Math.random() * (8000 - 1500) + 1500;
+        }
+
+        function changeColor() {
+            if (colorChanges >= 5) {
+                showResults();
+                return;
+            }
+
+            const remainingColors = colors.filter(c => c !== gameArea.style.backgroundColor);
+            const newColor = remainingColors[Math.floor(Math.random() * remainingColors.length)];
+            gameArea.style.backgroundColor = newColor;
+            startTime = Date.now();
+            gameInProgress = true;
+
+            document.body.addEventListener('click', registerClick, { once: true });
+            colorChanges++;
+        }
+
+        function registerClick() {
+            const reactionTime = Date.now() - startTime;
+            if (!gameInProgress) {
+                clickTimes.push(1000); // Penalize early click with 1000ms
+            } else {
+                clickTimes.push(reactionTime);
+            }
+
+            gameArea.style.backgroundColor = "white";
+            gameArea.textContent = "Click anywhere when the screen changes color";
+            gameInProgress = false;
+            setTimeout(changeColor, randomInterval());
+        }
+
+        function showResults() {
+            const total = clickTimes.reduce((sum, time) => sum + time, 0);
+            const average = total / clickTimes.length;
+            gameArea.style.backgroundColor = "white";
+            gameArea.textContent = `Results:\nTimes: ${clickTimes.join("ms, ")}ms\nAverage: ${average.toFixed(2)}ms`;
+
+            // Transmit to Supabase (use your API credentials here)
+            const userData = {
+                age: ageInput.value,
+                gender: genderInput.value,
+                reactionTimes: clickTimes,
+                averageTime: average.toFixed(2)
+            };
+
+            fetch('https://zgpaebwhtyjyhsshmlwc.supabase.co', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncGFlYndodHlqeWhzc2htbHdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4Mjg4NjgsImV4cCI6MjA1MjQwNDg2OH0.jzPqBdqQnl9s_D9uGwZ7jTARkgBvL2sc8nc93d4s_Vg',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpncGFlYndodHlqeWhzc2htbHdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4Mjg4NjgsImV4cCI6MjA1MjQwNDg2OH0.jzPqBdqQnl9s_D9uGwZ7jTARkgBvL2sc8nc93d4s_Vg'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => response.json())
+            .then(data => console.log('Data submitted to Supabase:', data))
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
